@@ -1,35 +1,28 @@
-import tornado.ioloop
-import tornado.web
-import tornado.gen
-import tornado.httpclient
+import asyncio
+import aiohttp
+from aiohttp import web
+from nats.aio.client import Client as NATS
 
+nc = NATS()
+loop = asyncio.get_event_loop()
 
-class MainHandler(tornado.web.RequestHandler):
-    client = tornado.httpclient.AsyncHTTPClient()
+async def handle(request):
+    async with aiohttp.ClientSession() as session:
+        async with session.get('http://127.0.0.1:8886') as resp:
+            print(await resp.text())
+            return web.json_response({'message': await resp.text()})
 
-    def data_received(self, chunk):
-        pass
+async def init(loop):
+    app = web.Application(loop=loop)
+    app.router.add_route('GET', '/', handle)
+    handler = app.make_handler()
+    srv = await loop.create_server(handler, '0.0.0.0', 8887)
+    print('======= Server running at :8887 =======')
+    return app, srv, handler
 
-    def _send_request(self, msg):
-        print(msg)
-        self.write({"message": msg.body})
-        self.finish()
-
-    @tornado.web.asynchronous
-    def get(self):
-        def get_response(response):
-            self._send_request(response)
-
-        self.client.fetch('http://127.0.0.1:8886', get_response)
-
-
-def make_app():
-    return tornado.web.Application([
-        (r"/", MainHandler),
-    ])
-
-
-if __name__ == "__main__":
-    app = make_app()
-    app.listen(8887)
-    tornado.ioloop.IOLoop.current().start()
+if __name__ == '__main__':
+    # loop = asyncio.get_event_loop()
+    # loop.run_until_complete(run(loop))
+    # loop.close()
+    app, srv, handler = loop.run_until_complete(init(loop))
+    loop.run_forever()
