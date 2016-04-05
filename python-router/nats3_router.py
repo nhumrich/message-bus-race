@@ -1,7 +1,6 @@
 import asyncio
 from aiohttp import web
 from nats.aio.client import Client as NATS
-from nats.aio.errors import ErrConnectionClosed, ErrTimeout, ErrNoServers
 
 nc = NATS()
 

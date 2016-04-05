@@ -25,7 +25,6 @@ async def init_nats(loop):
         await nc.publish(reply, reply_message.encode())
 
     await nc.subscribe('test', cb=subscribe_handler)
-    nc.subscribe()
 
 if __name__ == '__main__':
     # loop = asyncio.get_event_loop()
