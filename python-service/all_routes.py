@@ -6,7 +6,7 @@ from nats.aio.client import Client as NATS
 import message
 
 nc = NATS()
-NATS_SERVER = 'nats://' + os.getenv('NATS_SEVER', 'localhost:4222')
+NATS_SERVER = 'nats://' + os.getenv('NATS_SERVER', 'localhost') + ':4222'
 RABBIT_SERVER = os.getenv('RABBIT_SERVER', 'localhost')
 
 
@@ -24,9 +24,10 @@ async def init(loop):
     print('======= Server running at :8888 =======')
     return app, srv, handler
 
+
 async def init_nats(loop):
     options = {
-        'servers': ['nats://localhost:4222'],
+        'servers': [NATS_SERVER],
         'io_loop': loop,
     }
 
@@ -37,8 +38,8 @@ async def init_nats(loop):
         subject = msg.subject
         reply = msg.reply
         data = msg.data.decode()
-        print("Received a message on '{subject} {reply}': {data}".format(
-            subject=subject, reply=reply, data=data))
+        # print("Received a message on '{subject} {reply}': {data}".format(
+        #     subject=subject, reply=reply, data=data))
         reply_message = message.get_message()
         await nc.publish(reply, reply_message.encode())
 

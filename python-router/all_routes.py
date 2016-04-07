@@ -7,7 +7,7 @@ from aiohttp import web
 from nats.aio.client import Client as NATS
 
 nc = NATS()
-NATS_SERVER = 'nats://' + os.getenv('NATS_SEVER', 'localhost:4222')
+NATS_SERVER = 'nats://' + os.getenv('NATS_SERVER', 'localhost') + ':4222'
 RABBIT_SERVER = os.getenv('RABBIT_SERVER', 'localhost')
 HTTP_SERVER = 'http://' + os.getenv('HTTP_SERVER', '127.0.0.1:8888')
 
@@ -46,21 +46,21 @@ async def handle_rabbit(request):
 
     msg = d['response']
     r = b'{"message": "' + msg + b'"}'
-    print('got msg, size={}'.format(r.__sizeof__()))
+    # print('got msg, size={}'.format(r.__sizeof__()))
     return web.json_response(body=r)
 
 
 async def handle_nats(request):
     msg = await nc.timed_request('test', 'foo'.encode(), timeout=10)
     response = b'{"message": "' + msg.data + b'"}'
-    print('got msg, size={}'.format(msg.data.__sizeof__()))
+    # print('got msg, size={}'.format(msg.data.__sizeof__()))
     return web.json_response(body=response)
 
 
 async def handle_http(request):
     async with aiohttp.ClientSession() as session:
         async with session.post(HTTP_SERVER, data='foo'.encode()) as resp:
-            print(await resp.text())
+            # print(await resp.text())
             return web.json_response({'message': await resp.text()})
 
 

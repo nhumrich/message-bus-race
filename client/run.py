@@ -6,6 +6,9 @@ import multiprocessing
 from simplejson.scanner import JSONDecodeError
 
 
+POSTFIX = '1'
+
+
 def make_and_log_request(path):
     start = time.time()
     response = requests.get('http://127.0.0.1:8080' + path)
@@ -46,13 +49,11 @@ def run_one_at_a_time():
             size, rt_time = make_and_log_request(path)
             plot_list.append((size, rt_time))
 
-    plot_it(plots, '../results/one-at-a-time.png')
+    plot_it(plots, '../results/one-at-a-time{}.png'.format(POSTFIX))
 
 
 def worker(port):
-    print('out')
     result = make_and_log_request(port)
-    print('in')
     return result
 
 
@@ -65,7 +66,7 @@ def many_users_at_a_time():
         plot_list = pool.map(worker, jobs)
         plots.append(plot_list)
 
-    plot_it(plots, '../results/multiple-users.png')
+    plot_it(plots, '../results/multiple-users{}.png'.format(POSTFIX))
 
 
 if __name__ == "__main__":

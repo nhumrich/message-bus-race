@@ -1,0 +1,4 @@
+aiohttp
+aioamqp
+numpy
+git+git://github.com/nats-io/asyncio-nats
